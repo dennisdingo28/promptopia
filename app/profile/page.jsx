@@ -3,8 +3,9 @@
 import {useState,useEffect} from "react";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation"
-
+import { useSearchParams } from "next/navigation";
 import Profile from "@components/Profile";
+
 
 const UserProfile = () => {
 
@@ -12,14 +13,24 @@ const UserProfile = () => {
 
     const {data: session} = useSession();
 
-    const [posts,setPosts] = useState([]);  
+    const [posts,setPosts] = useState([]);
+    const [currentUser,setCurrentUser] = useState({});  
+
+    const params = useSearchParams();
+    const userId = params.get('id');
 
     useEffect(()=>{
         const fetchPosts = async () =>{
-          const response = await fetch(`/api/users/${session?.user.id}/posts`);
+          const response = await fetch(`/api/users/${userId || session?.user.id}/posts`);
           const data = await response.json();
           setPosts(data);
         }
+        const getCurrentUser = async()=>{
+          const response = await fetch(`/api/users/${userId || session?.user.id}`);
+          const data = await response.json();
+          setCurrentUser(data);
+        }
+          getCurrentUser();
         if(session?.user.id);
             fetchPosts();
       },[]);
@@ -42,9 +53,14 @@ const UserProfile = () => {
         }
       }
     }
-  return (
+    if(session?.user.id===userId || currentUser._id===session?.user.id)
+    return (
     <Profile name="My" desc="Welcome to your personalized page" data={posts} handleEdit={handleEdit} handleDelete={handleDelete}/>
-  )
+    )
+
+    return(
+      <Profile name={currentUser.username} desc={`Welcome to ${currentUser.username} personalized page`} data={posts}/>
+    )
 }
 
 export default UserProfile
