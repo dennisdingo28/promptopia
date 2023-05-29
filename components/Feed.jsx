@@ -18,9 +18,7 @@ const Feed = () => {
 
   const [searchText,setSearchText] = useState("");
   const [posts,setPosts] = useState([]);
-  console.log('posts',posts);
   const [searchResults,setSearchResults] = useState([]);
-  console.log("search resulsts",searchResults);
 
   const handleSearchChange = (e) =>{
     const textValue = e.target.value;
